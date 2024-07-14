@@ -29,7 +29,9 @@ else
     cd my-vps-sh
 fi
 
-# 给脚本添加执行权限
+# 修复可能的行结束符问题 给脚本添加执行权限
+sed -i 's/\r$//' vps_management.sh
+
 chmod +x vps_management.sh
 
 # 执行脚本

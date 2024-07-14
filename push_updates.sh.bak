@@ -13,11 +13,9 @@ current_branch=$(git rev-parse --abbrev-ref HEAD)
 echo "添加所有更改..."
 git add .
 
-# 自动生成提交信息
-commit_message="自动更新 $(date '+%Y-%m-%d %H:%M:%S')"
-
 # 提交更改
 echo "提交更改..."
+read -p "请输入提交信息: " commit_message
 git commit -m "$commit_message"
 
 # 推送到 GitHub

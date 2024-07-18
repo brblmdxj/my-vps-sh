@@ -6,6 +6,13 @@ GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
 NC='\033[0m' # No Color
 
+# 默认值设置
+DEFAULT_AUTH_EMAIL="guoabar@outlook.com"
+DEFAULT_AUTH_KEY="944c6bb800c6ef07711597a3c4059b1a141ee"
+ZONE_ID_1="3f6005568bd77a13e56970fc4539b00d"
+ZONE_ID_2="105f2a8d8d354aeef39cb1e83eadb85c"
+DEFAULT_ZONE_ID=$ZONE_ID_1
+
 # 检查是否以root权限运行
 check_root() {
     if [ "$EUID" -ne 0 ]; then
@@ -19,10 +26,33 @@ install_and_configure() {
     check_root
 
     # 提示用户输入Cloudflare信息
-    read -p "请输入您的Cloudflare账户邮箱: " AUTH_EMAIL
-    read -p "请输入您的Cloudflare Global API Key: " AUTH_KEY
-    read -p "请输入您的Zone ID: " ZONE_ID
-    read -p "请输入您要更新的域名: " RECORD_NAME
+    read -p "请输入您的Cloudflare账户邮箱 [默认: $DEFAULT_AUTH_EMAIL]: " AUTH_EMAIL
+    AUTH_EMAIL=${AUTH_EMAIL:-$DEFAULT_AUTH_EMAIL}
+
+    read -p "请输入您的Cloudflare Global API Key [默认: $DEFAULT_AUTH_KEY]: " AUTH_KEY
+    AUTH_KEY=${AUTH_KEY:-$DEFAULT_AUTH_KEY}
+
+    echo "请选择您的Zone ID:"
+    echo "1. $ZONE_ID_1 (默认)"
+    echo "2. $ZONE_ID_2"
+    read -p "请输入选项 (1 或 2) [默认: 1]: " ZONE_ID_CHOICE
+    ZONE_ID_CHOICE=${ZONE_ID_CHOICE:-1}
+
+    case $ZONE_ID_CHOICE in
+        1)
+            ZONE_ID=$ZONE_ID_1
+            ;;
+        2)
+            ZONE_ID=$ZONE_ID_2
+            ;;
+        *)
+            echo "无效的选择，使用默认值 1"
+            ZONE_ID=$ZONE_ID_1
+            ;;
+    esac
+
+    read -p "请输入您要更新的域名 [默认: example.com]: " RECORD_NAME
+    RECORD_NAME=${RECORD_NAME:-example.com}
 
     # 安装必要的工具
     echo "正在安装必要的工具..."
@@ -145,14 +175,14 @@ show_menu() {
     echo "2. 检查服务状态"
     echo "3. 立即更新DNS"
     echo "4. 卸载"
-    echo "5. 退出"
+    echo "0. 退出"
     echo -e "${YELLOW}==============================${NC}"
 }
 
 # 主循环
 while true; do
     show_menu
-    read -p "请选择一个选项 (1-5): " choice
+    read -p "请选择一个选项 (0-4): " choice
 
     case $choice in
         1)
@@ -167,7 +197,7 @@ while true; do
         4)
             uninstall
             ;;
-        5)
+        0)
             echo "谢谢使用，再见！"
             exit 0
             ;;
